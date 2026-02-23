@@ -1,0 +1,279 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your database architecture
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// 1. USERS (Admins, Dealers, Visitors)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String   // In a real app, this is hashed
+  role      Role     @default(VISITOR)
+  createdAt DateTime @default(now())
+
+  // NEW FIELDS FOR VERIFICATION
+  emailVerified     DateTime? //If null, NOT verified. If date exists, they are.
+  verificationToken String?   // We store a random code here to check against
+ 
+  // Relationships
+  dealerProfile DealerProfile? // Only if role is DEALER
+  followedBy    Follow[]       @relation("UserFollows")
+  savedItems    SavedItem[]
+}
+
+enum Role {
+  ADMIN
+  DEALER
+  VISITOR
+}
+
+// 2. DEALER PROFILE (Extra info for dealers)
+model DealerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views       Int      @default(0)
+  shopName    String
+  description String?
+  phone       String   // WhatsApp number
+  address     String?
+  city        String
+  isVerified  Boolean  @default(false)
+  image       String?  // Logo URL
+  coverImage  String?
+  idCardImage String?
+  createdAt   DateTime @default(now())
+
+  // NEW: Brand Color (Default to Blue)
+  brandColor  String   @default("#2563EB") 
+
+  // SOCIAL LINKS
+  websiteUrl  String?
+  instagram   String?
+  tiktok      String?
+  facebook    String?
+  twitter     String?
+  snap        String?
+
+  // Subscription Logic
+  subscriptionTier SubscriptionTier @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(INACTIVE)
+  subscriptionEnd  DateTime?
+
+  // Data
+  products    Product[]
+  followers   Follow[]  @relation("DealerFollowers")
+  leads       Lead[]    // Tracks who clicked "Show Number"
+
+  stats       DailyStat[]
+  adCredits   Int      @default(0) // How many boosts they have left
+ 
+
+  // NEW: Mark as Official Store (Admin managed)
+  isOfficialStore Boolean @default(false) 
+}
+
+
+enum SubscriptionTier {
+  FREE
+  GOLD
+  PLATINUM // Gets priority in search
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  CANCELED
+  PAST_DUE
+}
+
+// 3. PRODUCTS (The Phones)
+model Product {
+  id          String   @id @default(uuid())
+  dealerId    String
+  dealer      DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  leads       Lead[]
+
+  title       String   // e.g. "iPhone 13 Pro Max"
+  brand       String   // e.g. "Apple"
+  model       String?   // e.g. "iPhone 13"
+  price       Decimal
+  condition   Condition
+  description String?
+  images      String[] // Array of image URLs
+  isSold      Boolean  @default(false)
+  isNegotiable Boolean @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  savedBy     SavedItem[]
+  // NEW: Category Enum
+  category    Category @default(PHONE)
+  
+  // NEW: Ad Logic
+  isAd        Boolean  @default(false)
+  adExpiresAt DateTime?
+}
+
+model SavedItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) // Prevent duplicate saves
+}
+
+enum Condition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+// 4. RELATIONSHIPS (Follows & Leads)
+model Follow {
+  id          String        @id @default(uuid())
+  visitorId   String
+  visitor     User          @relation("UserFollows", fields: [visitorId], references: [id])
+  dealerId    String
+  dealer      DealerProfile @relation("DealerFollowers", fields: [dealerId], references: [id])
+  createdAt   DateTime      @default(now())
+
+  @@unique([visitorId, dealerId]) // Prevent following twice
+}
+
+// Tracks when someone clicks "Show Contact"
+model Lead {
+  id        String        @id @default(uuid())
+  dealerId  String
+  dealer    DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Link to the specific phone
+  productId String?       
+  product   Product?      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  type      LeadType      @default(VIEW_CONTACT) 
+
+  visitorId String?       // Optional: ID if the visitor was logged in
+  createdAt DateTime      @default(now())
+}
+
+// Stores tokens for password resets
+model PasswordResetToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token]) // Ensures one token per email at a time
+}
+
+model SearchTerm {
+  id        String   @id @default(uuid())
+  term      String   @unique // "iphone 13"
+  count     Int      @default(1)
+  updatedAt DateTime @updatedAt
+}
+
+model HeroSlide {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String?
+  image     String   // URL
+  link      String?  // Where it goes when clicked
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  color     String?  @default("#2563EB")
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id            String   @id @default("settings")
+  
+  // Text
+  ctaTitle      String   @default("Are you a Phone Dealer?")
+  ctaSubtitle   String   @default("Join thousands of sellers. Create your shop, verify your identity, and reach millions of buyers today.")
+  
+  // Gradient Colors (From -> To)
+  ctaGradientFrom String @default("#1e3a8a") // Blue 900
+  ctaGradientTo   String @default("#1d4ed8") // Blue 700
+
+  ctaHighlightText  String @default("Start your 7-Day Free Trial now.")
+  ctaHighlightColor String @default("#fde047") // Yellow-300
+
+  // Primary Button
+  btnPrimaryLabel String @default("Start Selling")
+  btnPrimaryLink  String @default("/register")
+  
+  // Secondary Button
+  btnSecondaryLabel String @default("Login")
+  btnSecondaryLink  String @default("/login")
+  showSecondaryBtn  Boolean @default(true)
+
+  // NEW: Grid Control
+  planGridCols Int     @default(3) // 2, 3, or 4
+
+  homepageLayout String[] @default(["HERO", "SPONSORED", "SHOWCASE", "COLLECTION", "CTA", "FEATURED", "LATEST"])
+}
+
+model SubscriptionPlan {
+  id          String   @id @default(uuid())
+  name        String   // e.g. "Diamond"
+  tier        String   // "GOLD", "PLATINUM", "CUSTOM" (System mapping)
+  price       Float    // Monthly Base Price
+  description String?  
+  features    String[] 
+  isPopular   Boolean  @default(false)
+  buttonText  String   @default("Subscribe")
+  
+  // --- NEW: THEME CONTROL ---
+  headerBg    String   @default("bg-slate-900") // Tailwind class or Hex
+  textColor   String   @default("text-white")
+  badgeColor  String   @default("bg-white/20")
+  iconColor   String   @default("text-blue-500")
+  
+  createdAt   DateTime @default(now())
+}
+
+model DailyStat {
+  id        String   @id @default(uuid())
+  dealerId  String
+  dealer    DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  
+  date      DateTime @default(now()) // We will truncate this to YYYY-MM-DD
+  views     Int      @default(0)
+  leads     Int      @default(0)
+
+  @@unique([dealerId, date]) // One record per dealer per day
+}
+
+enum LeadType {
+  VIEW_CONTACT
+  WHATSAPP
+}
+
+// Define Category Enum
+enum Category {
+  PHONE
+  LAPTOP
+  ACCESSORY
+  TABLET
+  OTHER
+}
