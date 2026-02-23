@@ -1,6 +1,8 @@
 import { getAdminProducts } from '@/actions/admin-ads';
 import AdManager from '@/components/admin/AdManager';
 
+// export const dynamic = 'force-dynamic';
+
 export default async function AdminAdsPage() {
   const products = await getAdminProducts();
   return (
