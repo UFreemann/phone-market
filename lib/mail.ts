@@ -4,13 +4,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // The base URL of your website
 // In development, it's localhost. In production, it will be your .com domain.
-const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const domain = process.env.NEXT_PUBLIC_APP_URL;
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${domain}/verify?token=${token}`;
 
   await resend.emails.send({
-    from: 'onboarding@resend.dev', // This is Resend's free testing domain
+    from: 'noreply@allphones.shop', // This is Resend's free testing domain
     to: email,
     subject: 'Verify your Dealer Account',
     html: `

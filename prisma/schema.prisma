@@ -151,9 +151,9 @@ enum Condition {
 model Follow {
   id          String        @id @default(uuid())
   visitorId   String
-  visitor     User          @relation("UserFollows", fields: [visitorId], references: [id])
+  visitor     User          @relation("UserFollows", fields: [visitorId], references: [id], onDelete: Cascade)
   dealerId    String
-  dealer      DealerProfile @relation("DealerFollowers", fields: [dealerId], references: [id])
+  dealer      DealerProfile @relation("DealerFollowers", fields: [dealerId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
 
   @@unique([visitorId, dealerId]) // Prevent following twice
