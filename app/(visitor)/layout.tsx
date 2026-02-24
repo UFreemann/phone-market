@@ -2,6 +2,8 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import VisitorShell from '@/components/visitor/VisitorShell';
 
+export const dynamic = 'force-dynamic';
+
 export default async function VisitorLayout({
   children,
 }: {

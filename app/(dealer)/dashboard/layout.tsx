@@ -3,6 +3,8 @@ import prisma from '@/lib/db';
 import { redirect } from 'next/navigation';
 import DealerShell from '@/components/dealer/DealerShell'; // Import the new component
 
+export const dynamic = 'force-dynamic';
+
 export default async function DealerLayout({
   children,
 }: {
