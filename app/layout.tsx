@@ -6,6 +6,8 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 
+export const dynamic = 'force-dynamic';
+
 // Load Fonts
 const geistSans = Geist({
   variable: '--font-geist-sans',
