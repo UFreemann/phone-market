@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getProductById } from '@/actions/get-product';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,26 @@ import ImageGallery from '@/components/public/ImageGallery';
 import ContactButtons from '@/components/public/ContactButtons';
 import BackButton from '@/components/ui/BackButton'; // Import BackButton
 import Link from 'next/link';
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+// 1. EXPORT METADATA FUNCTION
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params; // Await params in Next.js 15
+  const product = await getProductById(id);
+
+  if (!product) return { title: 'Product Not Found' };
+
+  return {
+    title: `${product.title} - Buy in Ghana`,
+    description: `Buy ${product.title} from ${product.dealer.shopName}. Price: GH₵ ${product.price}. Verified Dealer.`,
+    openGraph: {
+      images: product.images[0] ? [product.images[0]] : [],
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params,

@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
+import Image from 'next/image';
 
 export default function HeroSlider({ slides }: { slides: any[] }) {
   if (slides.length === 0) return null;
@@ -21,10 +22,14 @@ export default function HeroSlider({ slides }: { slides: any[] }) {
             <CarouselItem key={slide.id}>
               <Link href={slide.link}>
                 <div className='relative h-[200px] md:h-[400px] w-full rounded-2xl overflow-hidden cursor-pointer group'>
-                  <img
+                  <Image
                     src={slide.image}
                     alt={slide.title}
-                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700'
+                    fill // <--- Replaces width/height
+                    priority={true}
+                    className='object-cover group-hover:scale-105 transition-transform duration-700'
+                    sizes='(max-width: 768px) 100vw, 1200px'
+                    // className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-700'
                   />
                   <div className='absolute inset-0 bg-gradient-to-r from-black/80 to-transparent flex flex-col justify-center px-8 md:px-16 text-white'>
                     <h2 className='text-3xl md:text-5xl font-bold mb-2 max-w-lg'>

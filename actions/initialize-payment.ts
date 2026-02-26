@@ -247,7 +247,7 @@ export async function initializePayment(formData: FormData) {
         email: session.user.email,
         amount: totalAmountKobo,
         currency: 'GHS',
-        channels: ['card', 'mobile_money'],
+        channels: ['card', 'mobile_money', 'bank_transfer'],
         callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/callback`,
         metadata: {
           userId: session.user.id,

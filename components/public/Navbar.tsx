@@ -2,16 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {
-  User,
-  Search,
-  Menu,
-  ShoppingBag,
-  LogOut,
-  LayoutDashboard,
-  Heart,
-  Store,
-} from 'lucide-react';
+import { Search, LogOut, LayoutDashboard } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react'; // Install this if missing
 import {
   DropdownMenu,
@@ -24,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { FaHeart, FaShoppingBag, FaStore } from 'react-icons/fa';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -71,7 +63,7 @@ export default function Navbar() {
           {/* 1. LOGO */}
           <Link href='/' className='flex items-center gap-2 group'>
             <div className='bg-blue-600 p-1.5 rounded-lg group-hover:scale-110 transition-transform'>
-              <ShoppingBag className='text-white h-5 w-5' />
+              <FaShoppingBag className='text-white h-5 w-5' />
             </div>
             <span className='text-xl font-bold text-blue-900 tracking-tight'>
               PhoneMarket
@@ -168,12 +160,12 @@ export default function Navbar() {
                     <>
                       <DropdownMenuItem asChild>
                         <Link href='/profile' className='cursor-pointer'>
-                          <Store className='mr-2 h-4 w-4' /> Following
+                          <FaStore className='mr-2 h-4 w-4' /> Following
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href='/saved' className='cursor-pointer'>
-                          <Heart className='mr-2 h-4 w-4' /> Saved Items
+                          <FaHeart className='mr-2 h-4 w-4' /> Saved Items
                         </Link>
                       </DropdownMenuItem>
                     </>

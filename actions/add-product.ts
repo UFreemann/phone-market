@@ -28,8 +28,8 @@ export async function addProduct(formData: FormData) {
 
   const LIMITS = {
     FREE: 3,
-    GOLD: 50,
-    PLATINUM: 9999,
+    GOLD: 200,
+    PLATINUM: 10000,
   };
 
   if (currentCount >= LIMITS[plan]) {

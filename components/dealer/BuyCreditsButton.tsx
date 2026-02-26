@@ -11,13 +11,20 @@ import {
 } from '@/components/ui/dialog';
 import { initializeCreditPurchase } from '@/actions/buy-credits';
 import { Plus, Loader2 } from 'lucide-react';
+import { Input } from '../ui/input';
 
 export default function BuyCreditsButton() {
   const [loading, setLoading] = useState(false);
+  const [customQty, setCustomQty] = useState(''); // State for input
 
   const handleBuy = async (amount: number) => {
     setLoading(true);
     await initializeCreditPurchase(amount); // Server Action
+  };
+
+  const handleCustomBuy = () => {
+    const qty = parseInt(customQty);
+    if (qty > 0) handleBuy(qty);
   };
 
   return (
@@ -64,6 +71,29 @@ export default function BuyCreditsButton() {
             <span className='font-bold'>20 Credits</span>
             <span className='text-gray-500'>GH₵ 180</span>
           </Button>
+
+          {/* CUSTOM INPUT */}
+          <div className='mt-2 pt-4 border-t'>
+            <p className='text-sm font-medium mb-2 text-gray-700'>
+              Custom Amount (GH₵ 10 / credit)
+            </p>
+            <div className='flex gap-2'>
+              <Input
+                type='number'
+                placeholder='Qty'
+                value={customQty}
+                onChange={(e) => setCustomQty(e.target.value)}
+                className='flex-1'
+              />
+              <Button
+                onClick={handleCustomBuy}
+                disabled={loading || !customQty}
+                className='bg-gray-900 text-white'
+              >
+                Buy {customQty}
+              </Button>
+            </div>
+          </div>
         </div>
         {loading && (
           <p className='text-center text-xs text-gray-400 mt-2 flex justify-center items-center'>

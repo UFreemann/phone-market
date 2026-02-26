@@ -9,12 +9,20 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function AdminCharts({ data }: { data: any[] }) {
+type AdminChartsProps = {
+  data: any[];
+  periodLabel?: string; // Add new prop (optional if you want default)
+};
+
+export default function AdminCharts({
+  data,
+  periodLabel = 'Last 30 Days',
+}: AdminChartsProps) {
   return (
     <Card className='shadow-sm border-none bg-white'>
       <CardHeader>
         <CardTitle className='text-sm font-bold uppercase text-gray-500'>
-          New Dealer Signups (30 Days)
+          New Dealer Signups ({periodLabel})
         </CardTitle>
       </CardHeader>
       <CardContent className='h-[350px]'>

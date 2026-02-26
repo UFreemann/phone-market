@@ -44,7 +44,7 @@ enum Role {
 // 2. DEALER PROFILE (Extra info for dealers)
 model DealerProfile {
   id          String   @id @default(uuid())
-  userId      String   @unique
+  @@index([userId])      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   views       Int      @default(0)
   shopName    String
@@ -105,7 +105,7 @@ enum SubscriptionStatus {
 // 3. PRODUCTS (The Phones)
 model Product {
   id          String   @id @default(uuid())
-  dealerId    String
+  @@index([dealerId])    String
   dealer      DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   leads       Lead[]
 
@@ -132,7 +132,7 @@ model Product {
 
 model SavedItem {
   id        String   @id @default(uuid())
-  userId    String
+  @@index([userId])    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -152,7 +152,7 @@ model Follow {
   id          String        @id @default(uuid())
   visitorId   String
   visitor     User          @relation("UserFollows", fields: [visitorId], references: [id], onDelete: Cascade)
-  dealerId    String
+  @@index([dealerId])    String
   dealer      DealerProfile @relation("DealerFollowers", fields: [dealerId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
 
@@ -162,7 +162,7 @@ model Follow {
 // Tracks when someone clicks "Show Contact"
 model Lead {
   id        String        @id @default(uuid())
-  dealerId  String
+  @@index([dealerId])  String
   dealer    DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
 
   // Link to the specific phone
@@ -254,7 +254,7 @@ model SubscriptionPlan {
 
 model DailyStat {
   id        String   @id @default(uuid())
-  dealerId  String
+  @@index([dealerId])  String
   dealer    DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   
   date      DateTime @default(now()) // We will truncate this to YYYY-MM-DD

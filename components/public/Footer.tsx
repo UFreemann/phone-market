@@ -2,7 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Facebook, Twitter, Instagram, ShoppingBag } from 'lucide-react';
+import {
+  FaFacebook,
+  FaInstagram,
+  FaShoppingBag,
+  FaTwitter,
+} from 'react-icons/fa';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -18,7 +23,7 @@ export default function Footer() {
         {/* Brand */}
         <div className='space-y-4'>
           <div className='flex items-center gap-2 text-white'>
-            <ShoppingBag className='h-6 w-6' />
+            <FaShoppingBag className='h-6 w-6' />
             <span className='text-xl font-bold'>PhoneMarket</span>
           </div>
           <p className='text-sm text-slate-400 leading-relaxed'>
@@ -145,9 +150,9 @@ export default function Footer() {
         <div>
           <h4 className='text-white font-bold mb-4'>Follow Us</h4>
           <div className='flex gap-4'>
-            <SocialIcon icon={<Facebook size={20} />} />
-            <SocialIcon icon={<Twitter size={20} />} />
-            <SocialIcon icon={<Instagram size={20} />} />
+            <SocialIcon icon={<FaFacebook size={20} />} />
+            <SocialIcon icon={<FaTwitter size={20} />} />
+            <SocialIcon icon={<FaInstagram size={20} />} />
           </div>
         </div>
       </div>

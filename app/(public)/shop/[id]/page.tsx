@@ -1,30 +1,49 @@
+import type { Metadata } from 'next';
 import { getDealerById } from '@/actions/get-dealer';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import ProductCard from '@/components/public/ProductCard';
+import { MapPin, ShieldCheck, BadgeCheck, Search, Home } from 'lucide-react';
 import {
-  MapPin,
-  ShieldCheck,
-  BadgeCheck,
-  Globe,
-  Instagram,
-  Facebook,
-  Twitter,
-  Phone,
-  Ghost,
-  Video,
-  Search,
-  Home,
-} from 'lucide-react';
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaTiktok,
+  FaSnapchatGhost,
+  FaGlobe,
+} from 'react-icons/fa';
 import { trackDealerView } from '@/actions/track-view';
 import BackButton from '@/components/ui/BackButton';
 import ProfileContactButton from '@/components/public/ProfileContactButton';
 import FollowButton from '@/components/public/FollowButton';
 import ShopSearchBar from '@/components/public/ShopSearchBar';
 import Link from 'next/link';
+import { getProductById } from '@/actions/get-product';
+import Image from 'next/image';
 // We will build this Follow Button next
 // import FollowButton from "@/components/public/FollowButton";
+
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ q?: string }>;
+};
+
+// METADATA
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const data = await getDealerById(id);
+  if (!data) return { title: 'Shop Not Found' };
+
+  return {
+    title: `${data.dealer.shopName} - PhoneMarket Shop`,
+    description:
+      data.dealer.description ||
+      `Visit ${data.dealer.shopName} to see their inventory.`,
+    openGraph: {
+      images: data.dealer.image ? [data.dealer.image] : [],
+    },
+  };
+}
 
 export default async function DealerProfilePage({
   params,
@@ -35,6 +54,9 @@ export default async function DealerProfilePage({
 }) {
   const { id } = await params;
   const { q } = await searchParams;
+
+  const product = await getProductById(id);
+  if (!product) notFound();
 
   // Pass query to fetch function
   const data = await getDealerById(id, q);
@@ -56,6 +78,30 @@ export default async function DealerProfilePage({
 
   return (
     <div className='min-h-screen bg-gray-50 pb-20'>
+      {/* --- SEO SCRIPT GOES HERE --- */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.title,
+            image: product.images,
+            description: product.description,
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'GHS',
+              price: product.price,
+              availability: 'https://schema.org/InStock',
+              seller: {
+                '@type': 'Organization',
+                name: product.dealer.shopName,
+              },
+            },
+          }),
+        }}
+      />
+
       {/* 1. HEADER / BANNER AREA */}
       <div className='bg-white pb-6 shadow-sm'>
         {/* Sticky Nav */}
@@ -80,9 +126,12 @@ export default async function DealerProfilePage({
         {/* Banner Image */}
         <div className='h-48 md:h-64 w-full bg-gray-200 relative'>
           {dealer.coverImage ? (
-            <img
+            <Image
               src={dealer.coverImage}
-              className='w-full h-full object-cover'
+              alt='Cover'
+              fill // Replaces width/height
+              className='object-cover'
+              priority // Loads faster for LCP
             />
           ) : (
             <div className='w-full h-full bg-gradient-to-r from-blue-700 to-indigo-800' />
@@ -93,11 +142,14 @@ export default async function DealerProfilePage({
         <div className='max-w-6xl mx-auto px-4 relative'>
           {/* Logo (Floating over banner) */}
           <div className='-mt-16 mb-4 flex justify-between items-end'>
-            <div className='h-32 w-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-md'>
+            {/* Added 'relative' here so Image fill works inside */}
+            <div className='h-32 w-32 rounded-full border-4 border-white bg-white overflow-hidden shadow-md relative'>
               {dealer.image ? (
-                <img
+                <Image
                   src={dealer.image}
-                  className='w-full h-full object-cover'
+                  alt='Logo'
+                  fill // Replaces width/height
+                  className='object-cover'
                 />
               ) : (
                 <div className='w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-4xl font-bold'>
@@ -169,37 +221,37 @@ export default async function DealerProfilePage({
               {dealer.websiteUrl && (
                 <SocialLink
                   href={dealer.websiteUrl}
-                  icon={<Globe size={18} />}
+                  icon={<FaGlobe size={18} />}
                 />
               )}
               {dealer.instagram && (
                 <SocialLink
                   href={`https://instagram.com/${dealer.instagram}`}
-                  icon={<Instagram size={18} />}
+                  icon={<FaInstagram size={18} />}
                 />
               )}
               {dealer.twitter && (
                 <SocialLink
                   href={`https://twitter.com/${dealer.twitter}`}
-                  icon={<Twitter size={18} />}
+                  icon={<FaTwitter size={18} />}
                 />
               )}
               {dealer.facebook && (
                 <SocialLink
                   href={dealer.facebook}
-                  icon={<Facebook size={18} />}
+                  icon={<FaFacebook size={18} />}
                 />
               )}
               {dealer.tiktok && (
                 <SocialLink
                   href={`https://tiktok.com/@${dealer.tiktok}`}
-                  icon={<Video size={18} />}
+                  icon={<FaTiktok size={18} />}
                 />
               )}
               {dealer.snap && (
                 <SocialLink
                   href={`https://snapchat.com/add/${dealer.snap}`}
-                  icon={<Ghost size={18} />}
+                  icon={<FaSnapchatGhost size={18} />}
                 />
               )}
             </div>

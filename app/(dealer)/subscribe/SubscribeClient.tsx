@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, CheckCircle2 } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { initializePayment } from '@/actions/initialize-payment';
 import BackButton from '@/components/ui/BackButton';
 
@@ -148,6 +148,10 @@ function PricingCard({
   isCurrent,
   theme,
 }: any) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const visibleFeatures =
+    isExpanded || features.length <= 4 ? features : features.slice(0, 4);
+
   // Helper to determine if input is Tailwind Class or CSS Value
   const isCssValue = (val: string) =>
     val &&
@@ -265,7 +269,7 @@ function PricingCard({
         </div>
       </CardHeader>
 
-      <CardContent className='flex-1 p-8 bg-white'>
+      {/* <CardContent className='flex-1 p-8 bg-white'>
         <ul className='space-y-4'>
           {features.map((feature: string, i: number) => (
             <li
@@ -282,6 +286,48 @@ function PricingCard({
             </li>
           ))}
         </ul>
+      </CardContent> */}
+      <CardContent className='flex-1 p-8 bg-white'>
+        <ul className='space-y-4'>
+          {visibleFeatures.map((feature: string, i: number) => (
+            <li
+              key={i}
+              className='flex items-start gap-3 text-sm text-gray-600 font-medium'
+            >
+              <CheckCircle2
+                className={`h-5 w-5 flex-shrink-0 ${!isCssValue(theme.iconColor) ? theme.iconColor : ''}`}
+                style={
+                  isCssValue(theme.iconColor) ? { color: theme.iconColor } : {}
+                }
+              />
+              <span className='leading-tight'>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* EXPAND BUTTON */}
+        {features.length > 4 && (
+          <button
+            type='button'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className='mt-6 flex items-center justify-center text-xs font-bold text-gray-500 hover:text-gray-900 w-full uppercase tracking-wide transition-colors group'
+          >
+            {isExpanded
+              ? 'Show Less'
+              : `View ${features.length - 4} More Benefits`}
+            {isExpanded ? (
+              <ChevronUp
+                size={14}
+                className='ml-1 group-hover:-translate-y-0.5 transition-transform'
+              />
+            ) : (
+              <ChevronDown
+                size={14}
+                className='ml-1 group-hover:translate-y-0.5 transition-transform'
+              />
+            )}
+          </button>
+        )}
       </CardContent>
 
       <CardFooter className='p-6 bg-gray-50/50 border-t mt-auto'>

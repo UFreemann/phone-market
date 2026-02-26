@@ -19,9 +19,11 @@ import Link from 'next/link';
 export default function AnalyticsCharts({
   data,
   topProducts,
+  periodLabel,
 }: {
   data: any[];
   topProducts: any[];
+  periodLabel: string;
 }) {
   // Format dates for X-Axis (e.g. "Mar 10")
   const chartData = data.map((d) => ({
@@ -35,7 +37,7 @@ export default function AnalyticsCharts({
       <Card className='border-none shadow-sm bg-white'>
         <CardHeader>
           <CardTitle className='text-sm font-bold uppercase tracking-wider text-gray-500'>
-            Traffic Overview (Last 30 Days)
+            Traffic Overview ({periodLabel})
           </CardTitle>
         </CardHeader>
         <CardContent className='h-[350px]'>

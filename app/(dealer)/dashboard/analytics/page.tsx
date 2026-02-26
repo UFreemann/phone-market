@@ -116,8 +116,14 @@ import AnalyticsCharts from '@/components/dealer/AnalyticsCharts';
 import { Lock, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import AnalyticsFilter from '@/components/dealer/AnalyticsFilter';
+import { subDays, differenceInDays } from 'date-fns';
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
   const session = await auth();
   if (!session || !session.user) redirect('/login');
 
@@ -168,16 +174,33 @@ export default async function AnalyticsPage() {
     );
   }
 
-  // 2. FETCH DATA (Only if Platinum)
+  //  2. DATE LOGIC (This defines startDate and endDate)
+  const params = await searchParams;
+  const from = params.from;
+  const to = params.to;
 
+  const startDate = from ? new Date(from) : subDays(new Date(), 30);
+  const endDate = to ? new Date(to) : new Date();
+
+  const daysDiff = differenceInDays(endDate, startDate);
+  let periodLabel = `Last ${daysDiff} Days`;
+
+  if (daysDiff === 0) periodLabel = 'Today';
+  if (daysDiff === 1) periodLabel = 'Yesterday';
+  if (daysDiff === 7) periodLabel = 'Last 7 Days';
+  if (daysDiff === 30) periodLabel = 'Last 1 Month';
+  if (daysDiff === 90) periodLabel = 'Last 3 Months';
+
+  // 3. FETCH DATA (Only if Platinum)
   // A. Daily Stats (Last 30 Days)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  // const thirtyDaysAgo = new Date();
+  // thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const dailyStats = await prisma.dailyStat.findMany({
     where: {
       dealerId: dealer.id,
-      date: { gte: thirtyDaysAgo },
+      date: { gte: startDate, lte: endDate },
+      // date: { gte: thirtyDaysAgo },
     },
     orderBy: { date: 'asc' },
   });
@@ -204,10 +227,15 @@ export default async function AnalyticsPage() {
         <h1 className='text-3xl font-bold text-gray-900'>
           Performance Analytics
         </h1>
-        <span className='text-sm text-gray-500'>Last 30 Days</span>
+        {/* <span className='text-sm text-gray-500'>Last 30 Days</span> */}
+        <AnalyticsFilter startDate={startDate} endDate={endDate} />
       </div>
 
-      <AnalyticsCharts data={dailyStats} topProducts={topProducts} />
+      <AnalyticsCharts
+        data={dailyStats}
+        topProducts={topProducts}
+        periodLabel={periodLabel}
+      />
     </div>
   );
 }
