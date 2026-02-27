@@ -9,12 +9,12 @@ export default function BackButton() {
 
   return (
     <Button
-      variant='ghost'
+      variant='link'
       size='icon'
-      className='hover:bg-blue-400 -ml-2 animate-pulse'
+      className='-ml-2 animate-pulse'
       onClick={() => router.back()} // <--- The Magic
     >
-      <ArrowLeft className='h-5 w-5 text-gray-700' />
+      <ArrowLeft className='h-5 w-5 text-white' />
     </Button>
   );
 }

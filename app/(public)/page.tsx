@@ -47,7 +47,15 @@ export default async function Homepage({
     showcaseData,
     settings,
   ] = await Promise.all([
-    getPublicProducts(query, brand, condition, undefined, maxPrice, category),
+    getPublicProducts(
+      query,
+      brand,
+      undefined,
+      condition,
+      undefined,
+      maxPrice,
+      category,
+    ),
     getFeaturedProducts(),
     getSponsoredProducts(),
     getSliderData(),
@@ -56,7 +64,7 @@ export default async function Homepage({
   ]);
 
   // Determine if any filter is active (to hide Featured section)
-  const isFiltering = query || brand || condition || maxPrice;
+  const isFiltering = query || brand || condition || maxPrice || category;
 
   // Determine title text
   let pageTitle = 'Latest Arrivals';

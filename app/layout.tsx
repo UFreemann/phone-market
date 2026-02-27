@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import AuthProvider from '@/components/providers/AuthProvider';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
+import ScrollToTop from '@/components/ui/ScrollToTop';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,8 @@ export default function RootLayout({
           <main className='min-h-screen'>{children}</main>
 
           <Footer />
+
+          <ScrollToTop />
 
           {/* Toast Notifications (Bottom Right) */}
           <Toaster position='top-right' richColors closeButton />

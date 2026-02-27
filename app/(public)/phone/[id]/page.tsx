@@ -9,6 +9,7 @@ import ImageGallery from '@/components/public/ImageGallery';
 import ContactButtons from '@/components/public/ContactButtons';
 import BackButton from '@/components/ui/BackButton'; // Import BackButton
 import Link from 'next/link';
+import { MdVerified } from 'react-icons/md';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -52,15 +53,31 @@ export default async function ProductDetailPage({
 
   return (
     <div className='min-h-screen bg-gray-50 pb-20'>
+      {/* --- SEO SCRIPT GOES HERE --- */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.title,
+            image: product.images,
+            description: product.description,
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'GHS',
+              price: product.price,
+              availability: 'https://schema.org/InStock',
+              seller: {
+                '@type': 'Organization',
+                name: product.dealer.shopName,
+              },
+            },
+          }),
+        }}
+      />
+
       {/* --- STICKY HEADER (ADDED) --- */}
-      {/* <div className='sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b px-4 h-14 flex items-center mb-6'>
-        <div className='max-w-6xl mx-auto w-full flex items-center gap-2'>
-          <BackButton />
-          <span className='text-sm font-medium text-gray-900 truncate ml-2 opacity-80'>
-            {product.title}
-          </span>
-        </div>
-      </div> */}
       <div className='sticky top-0 z-30 flex items-center justify-between px-3 md:px-6 h-14 bg-white/80 backdrop-blur-md border-b'>
         {/* Left: Back Button & Name */}
         <div className='flex items-center gap-2 overflow-hidden'>
@@ -154,11 +171,11 @@ export default async function ProductDetailPage({
                   {product.dealer.isVerified && (
                     <>
                       {product.dealer.subscriptionTier === 'PLATINUM' && (
-                        <ShieldCheck className='h-4 w-4 text-purple-600 fill-purple-50 flex-shrink-0' />
+                        <MdVerified className='h-4 w-4 text-purple-500' />
                       )}
 
                       {product.dealer.subscriptionTier === 'GOLD' && (
-                        <BadgeCheck className='h-4 w-4 text-yellow-600 fill-yellow-50 flex-shrink-0' />
+                        <MdVerified className='h-4 w-4 text-yellow-500' />
                       )}
 
                       {/* If FREE users somehow get verified, they show nothing, or maybe a simple blue tick? */}
@@ -173,7 +190,7 @@ export default async function ProductDetailPage({
             </div>
 
             <Button variant='outline' className='w-full' asChild>
-              <a href={`/shop/${product.dealer.id}`}>View Shop Profile</a>
+              <Link href={`/shop/${product.dealer.id}`}>View Shop Profile</Link>
             </Button>
           </Card>
         </div>

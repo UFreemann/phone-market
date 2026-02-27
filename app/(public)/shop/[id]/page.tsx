@@ -20,6 +20,7 @@ import ShopSearchBar from '@/components/public/ShopSearchBar';
 import Link from 'next/link';
 import { getProductById } from '@/actions/get-product';
 import Image from 'next/image';
+import { MdVerified } from 'react-icons/md';
 // We will build this Follow Button next
 // import FollowButton from "@/components/public/FollowButton";
 
@@ -55,9 +56,6 @@ export default async function DealerProfilePage({
   const { id } = await params;
   const { q } = await searchParams;
 
-  const product = await getProductById(id);
-  if (!product) notFound();
-
   // Pass query to fetch function
   const data = await getDealerById(id, q);
 
@@ -71,10 +69,10 @@ export default async function DealerProfilePage({
   const isPlatinum = dealer.subscriptionTier === 'PLATINUM';
 
   // Brand Color Logic (Dynamic Styles)
-  const brandStyle = {
-    backgroundColor: dealer.brandColor || '#2563EB',
-    color: '#ffffff',
-  };
+  // const brandStyle = {
+  //   backgroundColor: dealer.brandColor || '#2563EB',
+  //   color: '#ffffff',
+  // };
 
   return (
     <div className='min-h-screen bg-gray-50 pb-20'>
@@ -84,20 +82,19 @@ export default async function DealerProfilePage({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'Product',
-            name: product.title,
-            image: product.images,
-            description: product.description,
-            offers: {
-              '@type': 'Offer',
-              priceCurrency: 'GHS',
-              price: product.price,
-              availability: 'https://schema.org/InStock',
-              seller: {
-                '@type': 'Organization',
-                name: product.dealer.shopName,
-              },
+            '@type': 'MobilePhoneStore', // or "ElectronicsStore"
+            name: dealer.shopName,
+            image: dealer.image ? [dealer.image] : [],
+            description: dealer.description,
+            telephone: dealer.phone,
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: dealer.address,
+              addressLocality: dealer.city,
+              addressCountry: 'GH',
             },
+            url: `https://phonemarket.com/shop/${dealer.id}`,
+            // Optional: Add Geo Coordinates if you had them
           }),
         }}
       />
@@ -105,11 +102,11 @@ export default async function DealerProfilePage({
       {/* 1. HEADER / BANNER AREA */}
       <div className='bg-white pb-6 shadow-sm'>
         {/* Sticky Nav */}
-        <div className='sticky top-0 z-30 flex items-center justify-between px-3 md:px-6 h-14 bg-white/80 backdrop-blur-md border-b'>
+        <div className='sticky top-0 z-30 flex items-center justify-between px-3 md:px-6 h-14 bg-gradient-to-r from-blue-700 to-blue-900 backdrop-blur-md border-b'>
           {/* Left: Back Button & Name */}
           <div className='flex items-center gap-2 overflow-hidden'>
             <BackButton />
-            <span className='ml-2 font-bold text-gray-900 truncate text-sm md:text-base'>
+            <span className='ml-2 font-bold text-white truncate text-sm md:text-base'>
               {dealer.shopName}
             </span>
           </div>
@@ -117,7 +114,7 @@ export default async function DealerProfilePage({
           {/* Right: Home Link (NEW) */}
           <Link
             href='/'
-            className='flex items-center justify-center h-9 w-9 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-colors flex-shrink-0 ml-2'
+            className='flex items-center justify-center h-9 w-9 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-colors flex-shrink-0 ml-2 animate-pulse'
           >
             <Home size={20} />
           </Link>
@@ -187,11 +184,11 @@ export default async function DealerProfilePage({
               {dealer.isVerified && (
                 <>
                   {dealer.subscriptionTier === 'PLATINUM' && (
-                    <ShieldCheck className='h-4 w-4 text-purple-600 fill-purple-50 flex-shrink-0' />
+                    <MdVerified className='h-4 w-4 text-purple-500' />
                   )}
 
                   {dealer.subscriptionTier === 'GOLD' && (
-                    <BadgeCheck className='h-4 w-4 text-yellow-600 fill-yellow-50 flex-shrink-0' />
+                    <MdVerified className='h-4 w-4 text-yellow-500' />
                   )}
 
                   {/* If FREE users somehow get verified, they show nothing, or maybe a simple blue tick? */}

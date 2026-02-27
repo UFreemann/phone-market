@@ -5,6 +5,7 @@ import prisma from '@/lib/db';
 export async function getPublicProducts(
   searchQuery?: string,
   brand?: string,
+  model?: string,
   condition?: string,
   minPrice?: number,
   maxPrice?: number,
@@ -21,6 +22,7 @@ export async function getPublicProducts(
     },
 
     ...(category && { category: category as any }),
+    ...(model && { model: { contains: model, mode: 'insensitive' } }),
     ...(brand && { brand: { equals: brand, mode: 'insensitive' } }),
     ...(condition && { condition: condition as any }), // "NEW", "USED"
     ...(minPrice && { price: { gte: minPrice } }),

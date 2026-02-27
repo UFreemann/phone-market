@@ -416,13 +416,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { addProduct } from '@/actions/add-product';
 import {
@@ -434,7 +428,6 @@ import {
   Smartphone,
   Tag,
   FileText,
-  CheckCircle,
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import BackButton from '@/components/ui/BackButton';

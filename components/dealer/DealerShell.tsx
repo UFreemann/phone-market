@@ -12,9 +12,6 @@ import {
   Menu,
   Zap,
   Users,
-  BadgeCheck,
-  CheckCircle2,
-  ShieldCheck,
   BarChart3,
   Megaphone,
 } from 'lucide-react';
@@ -29,7 +26,8 @@ import {
 } from '@/components/ui/sheet';
 import { CreditCard } from 'lucide-react';
 import { handleSignOut } from '@/actions/signout';
-import NotificationBell from '@/components/dealer/NotificationBell'; // <--- IMPORT THIS
+import NotificationBell from '@/components/dealer/NotificationBell';
+import { MdVerified } from 'react-icons/md';
 
 type DealerShellProps = {
   children: React.ReactNode;
@@ -110,14 +108,13 @@ export default function DealerShell({ children, dealer }: DealerShellProps) {
 
     if (dealer.subscriptionTier === 'PLATINUM') {
       return (
-        <ShieldCheck className='h-4 w-4 text-purple-600 fill-purple-50 shrink-0' />
+        // <ShieldCheck className='h-4 w-4 text-purple-600 fill-purple-50 shrink-0' />
+        <MdVerified className='h-4 w-4 text-purple-500' />
       );
     }
 
     if (dealer.subscriptionTier === 'GOLD') {
-      return (
-        <BadgeCheck className='h-4 w-4 text-yellow-600 fill-yellow-50 shrink-0' />
-      );
+      return <MdVerified className='h-4 w-4 text-yellow-500' />;
     }
     return null;
     // ADD THIS for Free Users

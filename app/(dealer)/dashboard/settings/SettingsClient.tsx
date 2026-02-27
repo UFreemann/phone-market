@@ -594,6 +594,13 @@ import {
   ShieldCheck,
   BookLock,
 } from 'lucide-react';
+import {
+  FaFacebook,
+  FaInstagram,
+  FaSnapchat,
+  FaTiktok,
+  FaTwitter,
+} from 'react-icons/fa';
 
 type SettingsClientProps = {
   initialProfile: any;
@@ -1063,14 +1070,14 @@ export default function SettingsClient({
 
         {/* --- 3. SOCIAL MEDIA --- */}
         <div className='space-y-4'>
-          <h2 className='text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2'>
+          <h2 className='text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2 pt-4'>
             <Globe size={16} /> Social Presence
           </h2>
           <Card className='shadow-sm'>
             <CardContent className='p-6 grid grid-cols-1 md:grid-cols-3 gap-6'>
               <div className='space-y-2 relative'>
                 <Label className='text-xs text-gray-500 ml-1'>Instagram</Label>
-                <Instagram className='absolute left-3 top-8 h-4 w-4 text-pink-600' />
+                <FaInstagram className='absolute left-3 top-8 h-4 w-4 text-pink-600' />
                 <Input
                   name='instagram'
                   defaultValue={profile.instagram || ''}
@@ -1080,7 +1087,7 @@ export default function SettingsClient({
               </div>
               <div className='space-y-2 relative'>
                 <Label className='text-xs text-gray-500 ml-1'>TikTok</Label>
-                <Video className='absolute left-3 top-8 h-4 w-4 text-black' />
+                <FaTiktok className='absolute left-3 top-8 h-4 w-4 text-black' />
                 <Input
                   name='tiktok'
                   defaultValue={profile.tiktok || ''}
@@ -1090,7 +1097,7 @@ export default function SettingsClient({
               </div>
               <div className='space-y-2 relative'>
                 <Label className='text-xs text-gray-500 ml-1'>Facebook</Label>
-                <Facebook className='absolute left-3 top-8 h-4 w-4 text-blue-600' />
+                <FaFacebook className='absolute left-3 top-8 h-4 w-4 text-blue-600' />
                 <Input
                   name='facebook'
                   defaultValue={profile.facebook || ''}
@@ -1102,7 +1109,7 @@ export default function SettingsClient({
                 <Label className='text-xs text-gray-500 ml-1'>
                   X (Twitter)
                 </Label>
-                <Twitter className='absolute left-3 top-8 h-4 w-4 text-blue-400' />
+                <FaTwitter className='absolute left-3 top-8 h-4 w-4 text-blue-400' />
                 <Input
                   name='twitter'
                   defaultValue={profile.twitter || ''}
@@ -1112,7 +1119,7 @@ export default function SettingsClient({
               </div>
               <div className='space-y-2 relative'>
                 <Label className='text-xs text-gray-500 ml-1'>Snapchat</Label>
-                <Ghost className='absolute left-3 top-8 h-4 w-4 text-yellow-500' />
+                <FaSnapchat className='absolute left-3 top-8 h-4 w-4 text-yellow-500' />
                 <Input
                   name='snap'
                   defaultValue={profile.snap || ''}
@@ -1153,7 +1160,7 @@ export default function SettingsClient({
           </div>
         </div>
       </form>
-      <div className='space-y-4'>
+      <div className='space-y-4 mt-6'>
         <h2 className='text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2'>
           <BookLock size={16} /> Password
         </h2>

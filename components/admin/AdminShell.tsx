@@ -102,7 +102,22 @@ export default function AdminShell({
 
       {/* MOBILE HEADER */}
       <div className='md:hidden fixed top-0 w-full bg-white border-b h-16 z-20 flex items-center justify-between px-4'>
+        {/* 1. LEFT: Title */}
         <span className='font-bold text-lg text-purple-700'>Admin Panel</span>
+
+        {/* 2. CENTER: Dashboard Home Icon */}
+        <Link
+          href='/admin'
+          className={`p-2 rounded-full transition-colors ${
+            pathname === '/admin'
+              ? 'bg-purple-50 text-purple-600'
+              : 'text-gray-500 hover:bg-gray-100'
+          }`}
+        >
+          <LayoutDashboard size={22} />
+        </Link>
+
+        {/* 3. RIGHT: Menu */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant='ghost' size='icon'>

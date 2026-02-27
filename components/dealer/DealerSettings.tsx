@@ -33,7 +33,7 @@ export default function DealerSettings() {
   };
 
   return (
-    <div className='max-w-2xl mx-auto py-10'>
+    <div className='max-w-2xl mx-auto'>
       <Card className='shadow-lg border-red-100 overflow-hidden'>
         <div className='h-2 bg-red-600 w-full' />
 

@@ -255,39 +255,6 @@ import { subDays } from 'date-fns';
 import MiniChart from '@/components/dealer/MiniChart';
 
 export default async function DashboardOverview() {
-  // const session = await auth();
-  // if (!session || !session.user) redirect('/login');
-
-  // const dealer = await prisma.dealerProfile.findUnique({
-  //   where: { userId: session.user.id as string },
-  //   include: {
-  //     _count: { select: { products: true, leads: true, followers: true } },
-  //   },
-  // });
-
-  // if (!dealer)
-  //   return (
-  //     <div className='flex justify-center items-center h-[50vh]'>
-  //       <Loader2 className='ml-2 h-6 w-6 animate-spin text-blue-600' />
-  //     </div>
-  //   );
-
-  // const recentProducts = await prisma.product.findMany({
-  //   where: { dealerId: dealer.id },
-  //   orderBy: { createdAt: 'desc' },
-  //   take: 5,
-  // });
-
-  // const isFreePlan = dealer.subscriptionTier === 'FREE';
-
-  // // Fetch 7 Days Data
-  // const sevenDaysAgo = subDays(new Date(), 7);
-  // const miniStats = await prisma.dailyStat.findMany({
-  //   where: { dealerId: dealer.id, date: { gte: sevenDaysAgo } },
-  //   orderBy: { date: 'asc' },
-  //   select: { views: true, date: true }, // Only fetch views for the mini chart
-  // });
-
   const session = await auth();
   if (!session || !session.user) redirect('/login');
 

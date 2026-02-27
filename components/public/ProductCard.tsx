@@ -165,6 +165,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { BadgeCheck, ShieldCheck, MapPin, Zap, Megaphone } from 'lucide-react'; // Added Megaphone
 import { Badge } from '@/components/ui/badge';
 import BookmarkButton from '@/components/public/BookmarkButton';
+import { MdVerified } from 'react-icons/md';
 
 type ProductCardProps = {
   id: string;
@@ -311,12 +312,16 @@ export default function ProductCard({
 
               {dealer.isVerified && (
                 <>
+                  {/* {dealer.subscriptionTier === 'PLATINUM' && (
+                    <MdVerified className='h-3 w-3 md:h-4 md:w-4 text-blue-500' />
+                  )} */}
+
                   {dealer.subscriptionTier === 'PLATINUM' && (
-                    <ShieldCheck className='h-3 w-3 md:h-3.5 md:w-3.5 text-purple-600 fill-purple-100 flex-shrink-0' />
+                    <MdVerified className='h-3 w-3 md:h-4 md:w-4 text-purple-500' />
                   )}
 
                   {dealer.subscriptionTier === 'GOLD' && (
-                    <BadgeCheck className='h-3 w-3 md:h-3.5 md:w-3.5 text-yellow-600 fill-yellow-50 flex-shrink-0' />
+                    <MdVerified className='h-3 w-3 md:h-4 md:w-4 text-yellow-500' />
                   )}
                 </>
               )}

@@ -12,6 +12,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input'; // Import Input
 import {
   Select,
   SelectContent,
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Filter, RotateCcw } from 'lucide-react';
+import { Filter, RotateCcw, X } from 'lucide-react';
 
 export default function FilterDrawer() {
   const router = useRouter();
@@ -29,38 +30,48 @@ export default function FilterDrawer() {
 
   // States
   const [brand, setBrand] = useState(params.get('brand') || 'all');
+  const [customBrand, setCustomBrand] = useState(''); // For "Other" input
+  const [isCustomBrandMode, setIsCustomBrandMode] = useState(false);
+
+  const [model, setModel] = useState(params.get('model') || ''); // New Model State
   const [condition, setCondition] = useState(params.get('condition') || 'all');
   const [price, setPrice] = useState([Number(params.get('maxPrice')) || 20000]);
 
   const applyFilters = () => {
-    // 1. Start fresh with current params
     const newParams = new URLSearchParams(params.toString());
 
-    // 2. BRAND LOGIC (The Fix)
-    if (brand && brand !== 'all') {
-      newParams.set('brand', brand);
+    // BRAND LOGIC
+    let finalBrand = brand;
+    if (isCustomBrandMode && customBrand) finalBrand = customBrand;
 
-      // OPTIONAL: Clear the text search if filtering by brand to prevent conflicts
-      // e.g. searching "iPhone" while filtering "Samsung" = 0 results
-      newParams.delete('q');
+    if (finalBrand && finalBrand !== 'all') {
+      newParams.set('brand', finalBrand);
+      newParams.delete('q'); // Clear text search to avoid conflict
     } else {
       newParams.delete('brand');
     }
 
-    // Condition
+    // MODEL LOGIC (NEW)
+    if (model.trim()) newParams.set('model', model.trim());
+    else newParams.delete('model');
+
+    // CONDITION
     if (condition && condition !== 'all') newParams.set('condition', condition);
     else newParams.delete('condition');
 
-    // Price
+    // PRICE
     if (price[0] < 20000) newParams.set('maxPrice', price[0].toString());
     else newParams.delete('maxPrice');
 
-    router.push(`/?${newParams.toString()}`);
+    router.push(`/?${newParams.toString()}#latest`);
     setOpen(false);
   };
 
   const resetFilters = () => {
     setBrand('all');
+    setCustomBrand('');
+    setIsCustomBrandMode(false);
+    setModel('');
     setCondition('all');
     setPrice([20000]);
     router.push('/');
@@ -82,7 +93,7 @@ export default function FilterDrawer() {
         side='right'
         className='w-[85%] sm:w-[400px] p-0 flex flex-col h-full bg-white'
       >
-        {/* 1. HEADER (Fixed) */}
+        {/* HEADER */}
         <SheetHeader className='px-6 py-6 border-b'>
           <SheetTitle className='text-2xl'>Refine Results</SheetTitle>
           <SheetDescription>
@@ -90,25 +101,69 @@ export default function FilterDrawer() {
           </SheetDescription>
         </SheetHeader>
 
-        {/* 2. SCROLLABLE CONTENT AREA (Flex-1 takes remaining space) */}
-        <div className='flex-1 overflow-y-auto px-6 py-8 space-y-10'>
-          {/* BRAND */}
+        {/* SCROLL AREA */}
+        <div className='flex-1 overflow-y-auto px-6 py-8 space-y-8'>
+          {/* BRAND SELECTION */}
           <div className='space-y-4'>
             <Label className='text-base font-semibold'>Brand</Label>
-            <Select value={brand} onValueChange={setBrand}>
-              <SelectTrigger className='h-12 border-gray-300 focus:ring-blue-500'>
-                <SelectValue placeholder='All Brands' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>All Brands</SelectItem>
-                <SelectItem value='Apple'>Apple</SelectItem>
-                <SelectItem value='Samsung'>Samsung</SelectItem>
-                <SelectItem value='Google'>Google</SelectItem>
-                <SelectItem value='Tecno'>Tecno</SelectItem>
-                <SelectItem value='Infinix'>Infinix</SelectItem>
-                <SelectItem value='Xiaomi'>Xiaomi</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {isCustomBrandMode ? (
+              <div className='flex gap-2'>
+                <Input
+                  placeholder='Type Brand Name...'
+                  value={customBrand}
+                  onChange={(e) => setCustomBrand(e.target.value)}
+                  className='h-12 border-gray-300'
+                  autoFocus
+                />
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => setIsCustomBrandMode(false)}
+                >
+                  <X size={18} />
+                </Button>
+              </div>
+            ) : (
+              <Select
+                value={brand}
+                onValueChange={(val) => {
+                  if (val === 'OTHER') {
+                    setIsCustomBrandMode(true);
+                    setBrand('all'); // Reset dropdown visual
+                  } else {
+                    setBrand(val);
+                  }
+                }}
+              >
+                <SelectTrigger className='h-12 border-gray-300 focus:ring-blue-500'>
+                  <SelectValue placeholder='All Brands' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Brands</SelectItem>
+                  <SelectItem value='Apple'>Apple</SelectItem>
+                  <SelectItem value='Samsung'>Samsung</SelectItem>
+                  <SelectItem value='Google'>Google</SelectItem>
+                  <SelectItem value='Tecno'>Tecno</SelectItem>
+                  <SelectItem value='Infinix'>Infinix</SelectItem>
+                  <SelectItem value='Xiaomi'>Xiaomi</SelectItem>
+                  <SelectItem value='OTHER' className='font-bold text-blue-600'>
+                    + Other Brand
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* MODEL INPUT (NEW) */}
+          <div className='space-y-4'>
+            <Label className='text-base font-semibold'>Model</Label>
+            <Input
+              placeholder='e.g. iPhone 13 Pro, S24 Ultra'
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              className='h-12 border-gray-300'
+            />
           </div>
 
           {/* CONDITION */}
@@ -128,7 +183,7 @@ export default function FilterDrawer() {
           </div>
 
           {/* PRICE */}
-          <div className='space-y-6 pt-2'>
+          <div className='space-y-6 pt-2 border-t mt-4'>
             <div className='flex justify-between items-center'>
               <Label className='text-base font-semibold'>Max Price</Label>
               <span className='text-blue-600 font-bold bg-blue-50 px-3 py-1 rounded-full text-sm'>
@@ -150,7 +205,7 @@ export default function FilterDrawer() {
           </div>
         </div>
 
-        {/* 3. FOOTER (Fixed at Bottom) */}
+        {/* FOOTER */}
         <div className='p-6 border-t bg-gray-50 mt-auto'>
           <Button
             onClick={applyFilters}
