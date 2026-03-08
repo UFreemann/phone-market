@@ -13,6 +13,8 @@ import { getSliderData } from '@/actions/get-slider-data';
 import { getShowcaseProducts } from '@/actions/get-showcase';
 import MarketplaceShowcase from '@/components/public/MarketplaceShowcase';
 import { getSiteSettings } from '@/actions/admin-settings';
+import { getTrendingReels } from '@/actions/get-reels';
+import TrendingReels from '@/components/public/TrendingReels';
 
 export default async function Homepage({
   searchParams,
@@ -84,6 +86,8 @@ export default async function Homepage({
     'FEATURED',
     'LATEST',
   ];
+
+  const trendingReels = await getTrendingReels();
 
   // --- COMPONENT MAP ---
   const componentMap: Record<string, React.ReactNode> = {
@@ -238,6 +242,7 @@ export default async function Homepage({
       {layoutOrder.map((key) => (
         <div key={key}>{componentMap[key]}</div>
       ))}
+      <TrendingReels reels={trendingReels} />
     </main>
   );
 }

@@ -19,7 +19,10 @@ export default async function VisitorLayout({
   // Or allow them to see both. For now, allow both.
 
   return (
-    <VisitorShell userName={session.user.name || 'User'}>
+    <VisitorShell
+      userName={session.user.name || 'User'}
+      userEmail={session.user.email || ''}
+    >
       {children}
     </VisitorShell>
   );

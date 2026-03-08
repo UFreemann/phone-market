@@ -14,6 +14,7 @@ import {
   Users,
   BarChart3,
   Megaphone,
+  PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -69,6 +70,11 @@ export default function DealerShell({ children, dealer }: DealerShellProps) {
       href: '/dashboard/inventory',
       icon: <Smartphone size={20} />,
       label: 'My Inventory',
+    },
+    {
+      href: '/dashboard/reels',
+      icon: <PlayCircle size={20} />,
+      label: 'Reels',
     },
     {
       href: '/dashboard/ads',

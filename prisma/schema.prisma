@@ -33,12 +33,39 @@ model User {
   dealerProfile DealerProfile? // Only if role is DEALER
   followedBy    Follow[]       @relation("UserFollows")
   savedItems    SavedItem[]
+  reelLikes     ReelLike[]
 }
 
 enum Role {
   ADMIN
   DEALER
   VISITOR
+}
+
+model Reel {
+  id        String   @id @default(uuid())
+  dealerId  String
+  dealer    DealerProfile @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  
+  videoUrl  String   // Supabase URL
+  caption   String?
+  views     Int      @default(0)
+  
+  createdAt DateTime @default(now())
+
+  likes     ReelLike[] // Relationship
+  likeCount Int        @default(0) // Cached count for speed
+
+}
+
+model ReelLike {
+  id        String   @id @default(uuid())
+  reelId    String
+  reel      Reel     @relation(fields: [reelId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([reelId, userId]) // One like per user per reel
 }
 
 // 2. DEALER PROFILE (Extra info for dealers)
@@ -84,7 +111,10 @@ model DealerProfile {
  
 
   // NEW: Mark as Official Store (Admin managed)
-  isOfficialStore Boolean @default(false) 
+  isOfficialStore Boolean @default(false)
+
+  // Reels
+  reels     Reel[] 
 }
 
 

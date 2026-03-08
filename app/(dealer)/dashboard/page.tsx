@@ -237,7 +237,7 @@ import prisma from '@/lib/db';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProductRow from '@/components/dealer/ProductRow';
 import {
   PlusCircle,
@@ -249,6 +249,9 @@ import {
   Zap,
   Crown,
   Loader2,
+  Video,
+  Play,
+  Heart,
 } from 'lucide-react';
 import NotificationBell from '@/components/dealer/NotificationBell';
 import { subDays } from 'date-fns';
@@ -292,6 +295,18 @@ export default async function DashboardOverview() {
   ]);
 
   const isFreePlan = dealer.subscriptionTier === 'FREE';
+
+  // Fetch Reels Stats
+  const reelsStats = await prisma.reel.aggregate({
+    where: { dealerId: dealer.id },
+    _sum: { views: true, likeCount: true },
+  });
+
+  // Fetch Top Reel
+  const topReel = await prisma.reel.findFirst({
+    where: { dealerId: dealer.id },
+    orderBy: { likeCount: 'desc' },
+  });
 
   return (
     <div className='max-w-7xl mx-auto space-y-8'>
@@ -430,6 +445,78 @@ export default async function DashboardOverview() {
           icon={<Users className='text-purple-600' />}
           color='border-l-4 border-l-purple-500'
         />
+      </div>
+      {/* --- REELS PERFORMANCE CARD --- */}
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        {/* Engagement Summary */}
+        <Card className='md:col-span-2 bg-gradient-to-br from-pink-50 to-white border-pink-100 shadow-sm'>
+          <CardHeader className='pb-2'>
+            <CardTitle className='flex items-center gap-2 text-pink-700'>
+              <Video size={20} /> Reels Engagement
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className='grid grid-cols-2 gap-8 mt-2'>
+              <div>
+                <p className='text-sm text-gray-500 font-medium uppercase tracking-wide'>
+                  Total Views
+                </p>
+                <div className='flex items-center gap-2 mt-1'>
+                  <Play size={24} className='text-pink-400 fill-pink-400' />
+                  <span className='text-3xl font-black text-gray-900'>
+                    {reelsStats._sum.views || 0}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <p className='text-sm text-gray-500 font-medium uppercase tracking-wide'>
+                  Total Likes
+                </p>
+                <div className='flex items-center gap-2 mt-1'>
+                  <Heart size={24} className='text-red-500 fill-red-500' />
+                  <span className='text-3xl font-black text-gray-900'>
+                    {reelsStats._sum.likeCount || 0}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Reel Preview */}
+        <Card className='overflow-hidden border-gray-200'>
+          <CardHeader className='pb-2 bg-gray-50/50 border-b'>
+            <CardTitle className='text-sm text-gray-500'>
+              Top Performing Reel
+            </CardTitle>
+          </CardHeader>
+          {topReel ? (
+            <div className='relative h-32 bg-black group cursor-pointer'>
+              <video
+                src={topReel.videoUrl}
+                className='w-full h-full object-cover opacity-80'
+              />
+              <div className='absolute inset-0 flex items-center justify-center'>
+                <div className='bg-white/20 backdrop-blur-md p-2 rounded-full'>
+                  <Play size={20} className='text-white fill-white' />
+                </div>
+              </div>
+              <div className='absolute bottom-2 left-2 flex gap-2 text-white text-xs font-bold'>
+                <span className='flex items-center gap-1'>
+                  <Heart size={10} className='fill-white' /> {topReel.likeCount}
+                </span>
+                <span className='flex items-center gap-1'>
+                  <Play size={10} className='fill-white' /> {topReel.views}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className='h-32 flex flex-col items-center justify-center text-gray-400 bg-gray-50'>
+              <Video size={24} className='mb-2 opacity-20' />
+              <span className='text-xs'>No reels yet</span>
+            </div>
+          )}
+        </Card>
       </div>
 
       {/* --- TRAFFIC TEASER --- */}

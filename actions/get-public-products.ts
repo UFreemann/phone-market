@@ -10,6 +10,9 @@ export async function getPublicProducts(
   minPrice?: number,
   maxPrice?: number,
   category?: string,
+  tier?: 'PLATINUM' | 'GOLD' | 'FREE',
+  limit?: number,
+  offset?: number,
 ) {
   // 1. Build the Filter Logic
   // We always want unsold phones.
@@ -27,6 +30,8 @@ export async function getPublicProducts(
     ...(condition && { condition: condition as any }), // "NEW", "USED"
     ...(minPrice && { price: { gte: minPrice } }),
     ...(maxPrice && { price: { lte: maxPrice } }),
+
+    ...(tier && { dealer: { subscriptionTier: tier } }), // Filter by Tier
   };
 
   if (searchQuery) {
@@ -41,6 +46,8 @@ export async function getPublicProducts(
   // 2. Fetch from Database
   const rawProducts = await prisma.product.findMany({
     where: whereClause,
+    take: limit || 50,
+    skip: offset || 0,
     include: {
       dealer: {
         select: {

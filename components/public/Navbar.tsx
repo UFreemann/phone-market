@@ -45,7 +45,10 @@ export default function Navbar() {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/subscribe') ||
-    pathname.startsWith('/shop')
+    pathname.startsWith('/shop') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/feed') ||
+    pathname.startsWith('/save')
   ) {
     return null;
   }
@@ -72,23 +75,23 @@ export default function Navbar() {
 
           {/* 2. CENTER LINKS (Desktop) */}
           <div className='hidden md:flex items-center gap-6 text-sm font-medium text-gray-600'>
-            <Link
-              href='/?category=PHONE#latest'
-              className={getLinkClass('PHONE')}
-            >
+            <Link href='/category/phone' className={getLinkClass('PHONE')}>
               Phones
             </Link>
-            <Link
-              href='/?category=LAPTOP#latest'
-              className={getLinkClass('LAPTOP')}
-            >
+            <Link href='/category/laptop' className={getLinkClass('LAPTOP')}>
               Laptops
             </Link>
-            <Link
-              href='/?category=ACCESSORY#latest'
+            {/* <Link
+              href='/category/accessory'
               className={getLinkClass('ACCESSORY')}
             >
               Accessories
+            </Link>
+            <Link href='/category/tablet' className={getLinkClass('TABLET')}>
+              Tablets
+            </Link> */}
+            <Link href='/category' className={getLinkClass('OTHERS')}>
+              Others
             </Link>
           </div>
 

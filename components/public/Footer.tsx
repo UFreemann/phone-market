@@ -13,7 +13,12 @@ export default function Footer() {
   const pathname = usePathname();
 
   // HIDE ON DASHBOARDS
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
+  if (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/feed') ||
+    pathname.startsWith('/profile')
+  ) {
     return null;
   }
 
@@ -134,7 +139,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href='#' className='hover:text-white transition'>
+              <Link href='/contact' className='hover:text-white transition'>
                 Contact Us
               </Link>
             </li>

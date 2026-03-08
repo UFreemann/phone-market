@@ -93,6 +93,7 @@ export async function addProduct(formData: FormData) {
           include: { visitor: { select: { email: true, name: true } } },
         });
 
+        // Limit to 50 to avoid timeouts
         for (const follow of followers.slice(0, 50)) {
           if (follow.visitor.email) {
             await sendNewStockAlert(

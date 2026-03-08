@@ -6,6 +6,7 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import ScrollToTop from '@/components/ui/ScrollToTop';
+import MobileNav from '@/components/public/MobileNav';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,7 @@ export default function RootLayout({
           <main className='min-h-screen'>{children}</main>
 
           <Footer />
+          <MobileNav />
 
           <ScrollToTop />
 

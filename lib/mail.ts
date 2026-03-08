@@ -33,7 +33,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetLink = `${domain}/auth/new-password?token=${token}`;
 
   await resend.emails.send({
-    from: 'onboarding@resend.dev',
+    from: 'PhoneMarket <noreply@allphones.shop>',
     to: email,
     subject: 'Reset your password',
     html: `
@@ -63,7 +63,7 @@ export const sendNewStockAlert = async (
   const link = `${domain}/phone/${productId}`;
 
   await resend.emails.send({
-    from: 'updates@resend.dev', // Change to your domain later
+    from: 'PhoneMarket <noreply@allphones.shop>', // Change to your domain later
     to: userEmail,
     subject: `New from ${dealerName}: ${productTitle}`,
     html: `

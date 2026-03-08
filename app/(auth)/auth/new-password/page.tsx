@@ -2,17 +2,20 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { newPassword } from '@/actions/new-password';
-import { Loader2, CheckCircle, Lock, Clock, ArrowRight } from 'lucide-react';
+import {
+  Loader2,
+  CheckCircle,
+  Lock,
+  Clock,
+  ArrowRight,
+  ShieldCheck,
+} from 'lucide-react';
 
 function NewPasswordForm() {
   const searchParams = useSearchParams();
@@ -33,14 +36,11 @@ function NewPasswordForm() {
     const data = await newPassword(formData);
 
     if (data.error === 'EXPIRED') {
-      // Handle Expired State specifically
       setStatus('expired');
     } else if (data.error) {
-      // Handle generic errors (like database connection)
       setMsg(data.error);
       setStatus('idle');
     } else {
-      // Success
       setMsg('Password has been reset!');
       setStatus('success');
       setTimeout(() => router.push('/login'), 2000);
@@ -49,109 +49,142 @@ function NewPasswordForm() {
 
   if (!token) {
     return (
-      <div className='text-red-500 text-center'>Error: Missing Link Token</div>
+      <div className='relative z-10 bg-red-900/80 backdrop-blur-md text-white p-6 rounded-xl border border-red-500/50 text-center max-w-sm'>
+        <p className='font-bold mb-2'>Invalid Link</p>
+        <p className='text-sm opacity-80'>
+          No token found. Please check your email link again.
+        </p>
+      </div>
     );
   }
 
-  // 1. VIEW: LINK EXPIRED
-  if (status === 'expired') {
-    return (
-      <Card className='w-100 shadow-lg border-orange-200'>
-        <CardHeader>
-          <div className='mx-auto bg-orange-100 p-3 rounded-full mb-2'>
-            <Clock className='h-8 w-8 text-orange-600' />
+  return (
+    <div className='relative z-10 w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500'>
+      {/* 1. VIEW: LINK EXPIRED */}
+      {status === 'expired' && (
+        <div className='p-8 text-center'>
+          <div className='inline-flex items-center justify-center p-3 rounded-full mb-4 bg-orange-500/20 text-orange-400'>
+            <Clock className='h-8 w-8' />
           </div>
-          <CardTitle className='text-center text-orange-700'>
-            Link Expired
-          </CardTitle>
-          <CardDescription className='text-center'>
-            For security, password links are only valid for 5 minutes.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          <h1 className='text-2xl font-bold text-white mb-2'>Link Expired</h1>
+          <p className='text-orange-100/80 text-sm mb-8'>
+            For security, password links are only valid for 15 minutes.
+          </p>
           <Button
             onClick={() => router.push('/reset')}
-            className='w-full bg-orange-600 hover:bg-orange-700'
+            className='w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg'
           >
             Request New Link <ArrowRight className='ml-2 h-4 w-4' />
           </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+        </div>
+      )}
 
-  // 2. VIEW: SUCCESS
-  if (status === 'success') {
-    return (
-      <Card className='w-100 shadow-lg border-green-200'>
-        <CardContent className='pt-10 pb-10'>
-          <div className='flex flex-col items-center justify-center animate-in fade-in'>
-            <CheckCircle className='h-16 w-16 text-green-600 mb-4' />
-            <h3 className='text-xl font-bold text-gray-800'>Password Reset!</h3>
-            <p className='text-gray-500 mt-2'>Redirecting to login...</p>
+      {/* 2. VIEW: SUCCESS */}
+      {status === 'success' && (
+        <div className='p-8 text-center'>
+          <div className='inline-flex items-center justify-center p-3 rounded-full mb-4 bg-green-500/20 text-green-400'>
+            <CheckCircle className='h-8 w-8' />
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
+          <h1 className='text-2xl font-bold text-white mb-2'>
+            Password Reset!
+          </h1>
+          <p className='text-green-100/80 text-sm mb-6'>
+            Your account is secure. Redirecting to login...
+          </p>
+          <div className='w-full bg-white/10 h-1 rounded-full overflow-hidden'>
+            <div className='h-full bg-green-500 animate-[progress_2s_ease-out_forwards] w-full origin-left' />
+          </div>
+        </div>
+      )}
 
-  // 3. VIEW: FORM (Default)
-  return (
-    <Card className='w-100 shadow-lg'>
-      <CardHeader>
-        <CardTitle className='text-center'>Set New Password</CardTitle>
-        <CardDescription className='text-center'>
-          Create a strong password for your account.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className='space-y-4'>
-          <input type='hidden' name='token' value={token} />
-
-          <div className='space-y-2'>
-            <div className='relative'>
-              <Lock className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
-              <Input
-                name='password'
-                type='password'
-                placeholder='New Password'
-                className='pl-9'
-                required
-                disabled={status === 'loading'}
-              />
+      {/* 3. VIEW: FORM (Default) */}
+      {(status === 'idle' || status === 'loading') && (
+        <>
+          <div className='p-8 pb-4 text-center'>
+            <div className='inline-flex items-center justify-center p-3 rounded-full mb-4 bg-blue-500/20 text-blue-400'>
+              <ShieldCheck className='h-8 w-8' />
             </div>
+            <h1 className='text-3xl font-bold text-white mb-2 tracking-tight'>
+              Set New Password
+            </h1>
+            <p className='text-blue-100 text-sm'>
+              Create a strong password for your account.
+            </p>
           </div>
 
-          {msg && (
-            <p className='text-sm text-red-500 bg-red-50 p-2 rounded border border-red-200'>
-              {msg}
-            </p>
-          )}
+          <div className='px-8 pb-8'>
+            <form onSubmit={onSubmit} className='space-y-5'>
+              <input type='hidden' name='token' value={token} />
 
-          <Button
-            type='submit'
-            className='w-full'
-            disabled={status === 'loading'}
-          >
-            {status === 'loading' ? (
-              <>
-                <Loader2 className='animate-spin' /> Resetting...
-              </>
-            ) : (
-              'Reset Password'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <div className='space-y-1'>
+                <Label className='text-white/80 text-xs uppercase font-semibold ml-1'>
+                  New Password
+                </Label>
+                <div className='relative'>
+                  <Lock className='absolute left-3 top-3.5 h-5 w-5 text-white/50' />
+                  <Input
+                    name='password'
+                    type='password'
+                    placeholder='••••••••'
+                    required
+                    disabled={status === 'loading'}
+                    className='pl-10 bg-black/20 border-white/10 text-white placeholder:text-white/30 h-12 rounded-lg focus-visible:ring-blue-400 focus-visible:border-blue-400 transition-all'
+                  />
+                </div>
+              </div>
+
+              {msg && (
+                <div className='p-3 text-sm text-red-200 bg-red-900/40 border border-red-500/40 rounded-lg text-center backdrop-blur-sm animate-in fade-in'>
+                  {msg}
+                </div>
+              )}
+
+              <Button
+                type='submit'
+                disabled={status === 'loading'}
+                className={`w-full h-12 text-base font-bold shadow-lg transition-all duration-300 ${
+                  status === 'loading'
+                    ? 'bg-blue-600/80 text-white'
+                    : 'bg-white text-blue-900 hover:bg-blue-50'
+                }`}
+              >
+                {status === 'loading' ? (
+                  <>
+                    {' '}
+                    <Loader2 className='ml-2 h-5 w-5 animate-spin' />{' '}
+                    Resetting...{' '}
+                  </>
+                ) : (
+                  'Reset Password'
+                )}
+              </Button>
+            </form>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
 export default function NewPasswordPage() {
   return (
-    <div className='flex justify-center items-center min-h-screen bg-gray-50'>
+    <div className='min-h-screen relative flex items-center justify-center p-4 overflow-hidden'>
+      {/* BACKGROUND IMAGE */}
+      <div className='absolute inset-0 z-0'>
+        <Image
+          src='/vs1.jpg'
+          alt='Background'
+          fill
+          className='object-cover'
+          priority
+        />
+        <div className='absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-blue-900/60' />
+      </div>
+
       <Suspense
-        fallback={<Loader2 className='animate-spin h-10 w-10 text-gray-400' />}
+        fallback={
+          <Loader2 className='animate-spin h-10 w-10 text-white relative z-10' />
+        }
       >
         <NewPasswordForm />
       </Suspense>
