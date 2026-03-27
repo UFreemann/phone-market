@@ -6,6 +6,12 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateSiteSettings(formData: FormData) {
   const session = await auth();
+  const sidebarAdImage = formData.get('sidebarAdImage') as string;
+  const sidebarAdLink = formData.get('sidebarAdLink') as string;
+  const sidebarAdTitle = formData.get('sidebarAdTitle') as string;
+  const sidebarAdSubtitle = formData.get('sidebarAdSubtitle') as string;
+  const removeSidebarAd = formData.get('removeSidebarAd') === 'true';
+
   if (session?.user.role !== 'ADMIN') return { error: 'Unauthorized' };
 
   // ROBUST BOOLEAN CHECK
@@ -50,6 +56,16 @@ export async function updateSiteSettings(formData: FormData) {
       btnSecondaryLabel,
       btnSecondaryLink,
       showSecondaryBtn,
+      ...(sidebarAdImage && { sidebarAdImage }),
+      ...(sidebarAdLink && { sidebarAdLink }),
+      ...(sidebarAdTitle && { sidebarAdTitle }),
+      ...(sidebarAdSubtitle && { sidebarAdSubtitle }),
+      // Logic: If remove flag is true, set to null. Otherwise, update if new image exists.
+      ...(removeSidebarAd
+        ? { sidebarAdImage: null, sidebarAdLink: null }
+        : sidebarAdImage
+          ? { sidebarAdImage, sidebarAdLink }
+          : {}),
     },
     create: {
       id: 'settings',
@@ -100,6 +116,8 @@ export async function getSiteSettings() {
         'FEATURED',
         'LATEST',
       ],
+      sidebarAdImage: null, // Default to null (shows placeholder "Advertise Here")
+      sidebarAdLink: '',
     }
   );
 }

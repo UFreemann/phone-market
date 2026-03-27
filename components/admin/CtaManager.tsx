@@ -258,9 +258,13 @@ import {
   Palette,
   MousePointerClick,
   Type,
+  Camera,
+  Trash2,
 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/lib/supabase';
+import { UploadCloud, Image as ImageIcon } from 'lucide-react';
 
 export default function CtaManager({
   initialSettings,
@@ -276,6 +280,30 @@ export default function CtaManager({
     initialSettings.ctaGradientFrom,
   );
   const [gradientTo, setGradientTo] = useState(initialSettings.ctaGradientTo);
+
+  const [adImageFile, setAdImageFile] = useState<File | null>(null);
+  const [adPreview, setAdPreview] = useState(
+    initialSettings.sidebarAdImage || '',
+  );
+  const [isUploadingAd, setIsUploadingAd] = useState(false);
+  const [removeAdFlag, setRemoveAdFlag] = useState(false);
+
+  const handleRemoveAd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setAdImageFile(null);
+    setAdPreview('');
+    setRemoveAdFlag(true); // Tell server to delete it
+  };
+
+  const handleAdImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setAdImageFile(file);
+      setAdPreview(URL.createObjectURL(file));
+    }
+  };
 
   function SubmitButton() {
     const { pending } = useFormStatus();
@@ -297,12 +325,38 @@ export default function CtaManager({
   }
 
   const handleSubmit = async (formData: FormData) => {
+    // setIsSaving(true);
     if (showSecondary) formData.set('showSecondaryBtn', 'on');
     else formData.set('showSecondaryBtn', 'off');
 
+    // 1. Upload Sidebar Ad Image to Supabase
+    if (adImageFile) {
+      setIsUploadingAd(true);
+      const fileName = `sidebar-ad-${Date.now()}`;
+      const { error } = await supabase.storage
+        .from('phone-images')
+        .upload(fileName, adImageFile);
+
+      if (!error) {
+        const { data } = supabase.storage
+          .from('phone-images')
+          .getPublicUrl(fileName);
+        formData.set('sidebarAdImage', data.publicUrl);
+      } else {
+        toast.error('Failed to upload ad image');
+      }
+      setIsUploadingAd(false);
+    }
+
+    // const res = await updateSiteSettings(formData);
+    // if (res.success) toast.success('Homepage CTA updated!');
+    // else toast.error('Failed to update settings');
+    // 2. Save Settings
     const res = await updateSiteSettings(formData);
-    if (res.success) toast.success('Homepage CTA updated!');
+    if (res.success) toast.success('Settings updated successfully!');
     else toast.error('Failed to update settings');
+
+    // setIsSaving(false);
   };
 
   return (
@@ -516,6 +570,113 @@ export default function CtaManager({
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* --- SIDEBAR ADVERTISEMENT --- */}
+      <div className='space-y-4 border-t pt-8 mt-8'>
+        <h4 className='text-sm font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-2'>
+          <Megaphone size={16} /> Sidebar Advertisement (300x250)
+        </h4>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl border'>
+          {/* Link Input */}
+          <div className='space-y-4'>
+            <div className='space-y-2'>
+              <Label>Ad Title</Label>
+              <Input
+                name='sidebarAdTitle'
+                defaultValue={initialSettings.sidebarAdTitle}
+                placeholder='e.g. 50% Off Samsung!'
+                className='bg-white'
+              />
+            </div>
+            <div className='space-y-2'>
+              <Label>Ad Subtitle</Label>
+              <Input
+                name='sidebarAdSubtitle'
+                defaultValue={initialSettings.sidebarAdSubtitle}
+                placeholder='e.g. Click here to shop now.'
+                className='bg-white'
+              />
+            </div>
+            <div className='space-y-2'>
+              <Label>Ad Destination URL</Label>
+              <Input
+                name='sidebarAdLink'
+                defaultValue={initialSettings.sidebarAdLink}
+                placeholder='https://...'
+                className='bg-white'
+              />
+              <p className='text-xs text-gray-500'>
+                Where users go when they click the ad.
+              </p>
+            </div>
+            {/* Optional: Add a 'Remove Ad' button logic here if needed */}
+          </div>
+
+          {/* Image Upload Area */}
+          <div className='space-y-2'>
+            <Label>Ad Banner Image</Label>
+            {/* Hidden input for removal flag */}
+            <input
+              type='hidden'
+              name='removeSidebarAd'
+              value={String(removeAdFlag)}
+            />
+            <label className='border-2 border-dashed border-gray-300 rounded-xl h-48 flex flex-col items-center justify-center bg-white hover:bg-blue-50/50 hover:border-blue-300 transition-all cursor-pointer relative overflow-hidden group shadow-sm'>
+              <Input
+                type='file'
+                className='hidden'
+                accept='image/*'
+                onChange={(e) => {
+                  handleAdImageChange(e);
+                  setRemoveAdFlag(false);
+                }}
+                disabled={isUploadingAd}
+              />
+
+              {adPreview ? (
+                <>
+                  <img
+                    src={adPreview}
+                    className='w-full h-full object-cover transition-opacity group-hover:opacity-60'
+                  />
+                  <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                    <span className='bg-black/70 text-white px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm flex items-center gap-2'>
+                      <Camera size={14} /> Change Ad
+                    </span>
+
+                    {/* Remove Button */}
+                    <button
+                      type='button'
+                      onClick={handleRemoveAd}
+                      className='bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700 shadow-md transition-transform hover:scale-110 z-20 mx-1'
+                      title='Remove Ad'
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className='text-center text-gray-400 p-4'>
+                  {isUploadingAd ? (
+                    <Loader2 className='w-8 h-8 text-blue-600 animate-spin mx-auto' />
+                  ) : (
+                    <div className='bg-gray-100 p-3 rounded-full mx-auto w-fit mb-2'>
+                      <UploadCloud className='w-6 h-6 text-gray-500' />
+                    </div>
+                  )}
+                  <span className='text-sm font-medium text-gray-600 block'>
+                    Upload Ad Banner
+                  </span>
+                  <span className='text-xs text-gray-400 mt-1'>
+                    PNG, JPG (Vertical 300x250)
+                  </span>
+                </div>
+              )}
+            </label>
+          </div>
         </div>
       </div>
 

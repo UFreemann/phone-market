@@ -191,7 +191,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorType = searchParams.get('error');
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const isSessionExpired = errorType === 'session_expired';
 
   // UI States
@@ -218,7 +218,7 @@ export default function LoginPage() {
         // Respect the callback URL (Visitor vs Dealer logic handled in middleware/action)
         router.push(callbackUrl);
         router.refresh();
-      }, 1500);
+      }, 800);
     }
   }
 

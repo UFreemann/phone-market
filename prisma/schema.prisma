@@ -261,6 +261,12 @@ model SiteSettings {
   planGridCols Int     @default(3) // 2, 3, or 4
 
   homepageLayout String[] @default(["HERO", "SPONSORED", "SHOWCASE", "COLLECTION", "CTA", "FEATURED", "LATEST"])
+  
+  // NEW: Sidebar Ad
+  sidebarAdImage String?
+  sidebarAdLink  String?
+  sidebarAdTitle    String? 
+  sidebarAdSubtitle String? 
 }
 
 model SubscriptionPlan {

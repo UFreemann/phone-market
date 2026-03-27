@@ -2,7 +2,14 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Search, LogOut, LayoutDashboard } from 'lucide-react';
+import {
+  Search,
+  LogOut,
+  LayoutDashboard,
+  User,
+  Sparkles,
+  PlayCircle,
+} from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react'; // Install this if missing
 import {
   DropdownMenu,
@@ -162,13 +169,26 @@ export default function Navbar() {
                   {!isAdmin && (
                     <>
                       <DropdownMenuItem asChild>
-                        <Link href='/profile' className='cursor-pointer'>
+                        <Link
+                          href='/profile/following'
+                          className='cursor-pointer'
+                        >
                           <FaStore className='mr-2 h-4 w-4' /> Following
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href='/saved' className='cursor-pointer'>
+                        <Link href='/save' className='cursor-pointer'>
                           <FaHeart className='mr-2 h-4 w-4' /> Saved Items
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href='/profile/reels' className='cursor-pointer'>
+                          <PlayCircle className='mr-2 h-4 w-4' /> Reels
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href='/feed' className='cursor-pointer'>
+                          <Sparkles className='mr-2 h-4 w-4' /> For You
                         </Link>
                       </DropdownMenuItem>
                     </>

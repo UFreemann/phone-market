@@ -15,6 +15,8 @@ import MarketplaceShowcase from '@/components/public/MarketplaceShowcase';
 import { getSiteSettings } from '@/actions/admin-settings';
 import { getTrendingReels } from '@/actions/get-reels';
 import TrendingReels from '@/components/public/TrendingReels';
+import { getSidebarData } from '@/actions/get-sidebar-data';
+import RightSidebar from '@/components/public/RightSidebar';
 
 export default async function Homepage({
   searchParams,
@@ -27,10 +29,6 @@ export default async function Homepage({
     category?: string;
   }>;
 }) {
-  // Await search params (Next.js 15 requirement)
-  // Note: Depending on your exact Next.js version, searchParams might not need await yet,
-  // but it's good practice for the future.
-  // const params = await searchParams; // Uncomment if you get a sync error
   const params = await searchParams;
   const query = params.q || '';
   const brand = params.brand;
@@ -38,9 +36,7 @@ export default async function Homepage({
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
   const category = params.category;
 
-  // console.log('SEARCH QUERY:', query);
-
-  // Fetch Data in Parallel for speed
+  // 1. Fetch EVERYTHING in parallel (Added trendingReels here)
   const [
     products,
     featuredProducts,
@@ -48,13 +44,15 @@ export default async function Homepage({
     sliderData,
     showcaseData,
     settings,
+    trendingReels,
+    sidebarData,
   ] = await Promise.all([
     getPublicProducts(
       query,
       brand,
-      undefined,
+      undefined, // model
       condition,
-      undefined,
+      undefined, // minPrice
       maxPrice,
       category,
     ),
@@ -63,19 +61,23 @@ export default async function Homepage({
     getSliderData(),
     getShowcaseProducts(),
     getSiteSettings(),
+    getTrendingReels(), // Fetching in parallel is much faster
+    getSidebarData(),
   ]);
 
-  // Determine if any filter is active (to hide Featured section)
   const isFiltering = query || brand || condition || maxPrice || category;
 
-  // Determine title text
+  // 2. Smarter Title Logic
   let pageTitle = 'Latest Arrivals';
-  if (query) pageTitle = `Results for "${query}"`;
-  else if (brand) pageTitle = `${brand} Phones`;
-  else if (isFiltering) pageTitle = 'Filtered Results';
-
-  if (category)
-    pageTitle = `${category.charAt(0) + category.slice(1).toLowerCase()}s`; // "Laptops", "Phones"
+  if (query) {
+    pageTitle = `Results for "${query}"`;
+  } else if (isFiltering) {
+    const categoryName = category
+      ? `${category.charAt(0) + category.slice(1).toLowerCase()}s`
+      : 'Phones';
+    const brandName = brand && brand !== 'all' ? brand : '';
+    pageTitle = brandName ? `${brandName} ${categoryName}` : categoryName;
+  }
 
   const layoutOrder = settings.homepageLayout || [
     'HERO',
@@ -87,9 +89,7 @@ export default async function Homepage({
     'LATEST',
   ];
 
-  const trendingReels = await getTrendingReels();
-
-  // --- COMPONENT MAP ---
+  // 3. Component Map (UNCHANGED)
   const componentMap: Record<string, React.ReactNode> = {
     HERO: (
       <div className='bg-[linear-gradient(to_right,#1d4ed8,#1e3a8a)] py-20 px-4 text-center relative overflow-hidden'>
@@ -157,12 +157,8 @@ export default async function Homepage({
         </section>
       ) : null,
 
-    // Note: You named this HeroSlider in previous chats, but if it's the vertical one, use MarketplaceShowcase
     SHOWCASE: <HeroSlider slides={sliderData} />,
 
-    // If you have MarketplaceShowcase separately, map it here:
-    // "COLLECTION": <MarketplaceShowcase products={showcaseData} />,
-    // Assuming "SHOWCASE" maps to your MarketplaceShowcase component in admin logic:
     COLLECTION: <MarketplaceShowcase products={showcaseData} />,
 
     CTA: <SellerCTA />,
@@ -196,6 +192,7 @@ export default async function Homepage({
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4'>
           <div className='flex items-center gap-3'>
             <h2 className='text-2xl font-bold text-gray-800'>{pageTitle}</h2>
+
             {isFiltering && (
               <Link
                 href='/'
@@ -205,43 +202,63 @@ export default async function Homepage({
               </Link>
             )}
           </div>
+
           <span className='text-gray-500 text-sm font-medium'>
-            {products.length} phones found
+            {products.length} items found
           </span>
         </div>
 
-        {products.length === 0 ? (
-          <div className='text-center py-20 bg-white rounded-xl border border-dashed'>
-            <div className='inline-flex bg-gray-100 p-4 rounded-full mb-4'>
-              <Search className='h-8 w-8 text-gray-400' />
-            </div>
-            <h3 className='text-lg font-medium text-gray-900'>
-              No phones found
-            </h3>
-            <p className='text-gray-500'>Try adjusting your search terms.</p>
+        {/* --- NEW: GRID + SIDEBAR LAYOUT --- */}
+        <div className='flex flex-col lg:flex-row gap-8 items-start'>
+          {/* LEFT: MAIN FEED GRID (Flex-1) */}
+          <div className='flex-1 w-full'>
+            {products.length === 0 ? (
+              <div className='text-center py-20 bg-white rounded-xl border border-dashed'>
+                <div className='inline-flex bg-gray-100 p-4 rounded-full mb-4'>
+                  <Search className='h-8 w-8 text-gray-400' />
+                </div>
+                <h3 className='text-lg font-medium text-gray-900'>
+                  No items found
+                </h3>
+                <p className='text-gray-500'>
+                  Try adjusting your search terms.
+                </p>
+              </div>
+            ) : (
+              <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6'>
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    {...product}
+                    image={product.images[0]}
+                    dealer={product.dealer as any}
+                    isAd={false}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6'>
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                {...product}
-                image={product.images[0]}
-                dealer={product.dealer as any}
-                isAd={false}
-              />
-            ))}
-          </div>
-        )}
+
+          {/* RIGHT: SIDEBAR (lg:block) */}
+          {/* Make sure sidebarData is fetched in the Promise.all at the top of the file! */}
+          <RightSidebar
+            trending={sidebarData.trendingProducts}
+            dealers={sidebarData.topDealers}
+            settings={settings}
+          />
+        </div>
       </section>
     ),
   };
 
   return (
     <main className='min-h-screen bg-gray-50 pb-20'>
+      {/* Dynamic Sections */}
       {layoutOrder.map((key) => (
         <div key={key}>{componentMap[key]}</div>
       ))}
+
+      {/* Static Footer Section (Trending Reels) */}
       <TrendingReels reels={trendingReels} />
     </main>
   );
