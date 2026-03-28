@@ -215,10 +215,17 @@ export default function LoginPage() {
     } else if (result?.success) {
       setStatus('success');
       setTimeout(() => {
-        // Respect the callback URL (Visitor vs Dealer logic handled in middleware/action)
-        router.push(callbackUrl);
-        router.refresh();
-      }, 800);
+        // 1. If going back to the exact same page, force a hard reload
+        //    to ensure all Server Components (like Navbar) get the new session
+        if (callbackUrl === window.location.pathname || callbackUrl === '/') {
+          window.location.href = callbackUrl; // This forces a full browser reload
+        } else {
+          // 2. If navigating to a new route (like /dashboard), push is fine
+          //    but we still call router.refresh() to bust the router cache.
+          router.push(callbackUrl);
+          router.refresh();
+        }
+      }, 1500);
     }
   }
 

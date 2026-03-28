@@ -196,8 +196,11 @@ export default function Navbar() {
 
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
+                    onClick={async () => {
+                      // The 'redirect: true' and 'callbackUrl' forces a clean reload
+                      await signOut({ redirect: true, callbackUrl: '/' });
+                    }}
                     className='text-red-600 cursor-pointer'
-                    onClick={() => signOut()}
                   >
                     <LogOut className='mr-2 h-4 w-4 text-red-600' /> Log out
                   </DropdownMenuItem>

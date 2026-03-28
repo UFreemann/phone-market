@@ -81,7 +81,7 @@ export default auth((req) => {
       // If a Dealer/Visitor tries to go to /admin, send them to their home base
       if (userRole === 'DEALER')
         return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
-      return NextResponse.redirect(new URL('/profile', req.nextUrl));
+      return NextResponse.redirect(new URL('/', req.nextUrl));
     }
   }
 
@@ -89,7 +89,7 @@ export default auth((req) => {
   if (path.startsWith('/dashboard')) {
     if (userRole === 'VISITOR') {
       // Visitors cannot sell. Redirect to buyer profile.
-      return NextResponse.redirect(new URL('/profile', req.nextUrl));
+      return NextResponse.redirect(new URL('/', req.nextUrl));
     }
     // Admin & Dealer allowed here.
   }
@@ -106,7 +106,7 @@ export default auth((req) => {
     if (userRole === 'DEALER')
       return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
     if (userRole === 'VISITOR')
-      return NextResponse.redirect(new URL('/profile', req.nextUrl));
+      return NextResponse.redirect(new URL('/', req.nextUrl));
   }
 
   return NextResponse.next();
